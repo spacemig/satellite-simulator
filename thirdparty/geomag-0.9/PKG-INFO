@@ -1,0 +1,26 @@
+Metadata-Version: 1.0
+Name: geomag
+Version: 0.9
+Summary: Magnetic variation/declination
+Home-page: http://geomag.googlecode.com/
+Author: Christopher Weiss
+Author-email: cmweiss@gmail.com
+License: UNKNOWN
+Download-URL: http://geomag.googlecode.com/files/geomag-0.9.zip
+Description: Magnetic variation/declination
+        ------------------------------
+        
+        Calculates magnetic variation/declination for any latitude/longitude/altitude,
+        for any date. Uses the NOAA National Geophysical Data Center, epoch 2010 data.
+        
+Keywords: magnetic,variation,declination
+Platform: UNKNOWN
+Classifier: Programming Language :: Python
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Other Environment
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Scientific/Engineering :: GIS
+Classifier: Topic :: Utilities
