@@ -131,6 +131,7 @@ def quaternion_from_euler(euler):
 # before quaternion2euler_aero
 def euler_from_quaternion(q):
     # from book: Quaternions and Rotation Sequences pg 168
+    # assumes q = [q0, q1, q2, q3] (scalar first)
 
     dcm = dcm_from_quaternion(q)
     
@@ -139,7 +140,19 @@ def euler_from_quaternion(q):
     phi   = arctan2(dcm[1,2],dcm[2,2]) #roll 
     
     return array([psi,theta,phi])
+   
+
+def euler_from_quaternion_scalar_last(q):
+    # ref: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+    # assumes q = [q1, q2, q3, q4] (scalar last)
+
+    q1,q2,q3,q4 = q  
     
+    phi   = arctan2( 2*(q4*q1 + q2*q3), 1-2*(q1*q1 + q2*q2)  ) #yaw
+    theta = arcsin(  2*(q4*q2 - q3*q1) )         #pitch 
+    psi   = arctan2( 2*(q4*q3 + q1*q2), 1-2*(q2*q2 + q3*q3)) #roll 
+    
+    return array([psi,theta,phi])
 
 #def quaternion2euler_test(q):
 #    # from http://www.gamedev.net/topic/597324-quaternion-to-euler-angles-and-back-why-is-the-rotation-changing/
