@@ -19,8 +19,8 @@ notes on the attitude code
 
 """
 
-from numpy import *
-from numpy.linalg import *
+import numpy as np
+from numpy.linalg import inv
 from scipy import integrate
 #import matplotlib.pyplot as plt
 #from matplotlib import plot, ion, show
@@ -40,7 +40,7 @@ from matplotlib.pylab import *
 def skew(x):
     # quaternion representation, scalar first, q=(q0,q1,q2,q3)
     # MUST CHECK!!! now it's probvably the same as scalar last!
-    return array( [ ( 0   , -x[2],  x[1]), 
+    return np.array( [ ( 0   , -x[2],  x[1]), 
                     ( x[2],  0,    -x[0]),
                     (-x[1],  x[0],  0   ) ] )
 #def skew4(x):
@@ -57,7 +57,7 @@ def skew4(x):
     w1 = x[0]
     w2 = x[1]
     w3 = x[2]
-    return array( [  [  0,  -w1, -w2, -w3], 
+    return np.array( [  [  0,  -w1, -w2, -w3], 
                      [  w1,  0 ,  w3, -w2],
                      [  w2, -w3,  0 ,  w1],
                      [  w3,  w2, -w1,  0 ] ] )
@@ -94,15 +94,15 @@ def quaternion_from_euler(euler):
     
     # check if pitch is not in [-90, 90] deg domain
     if euler[1] >= pi/2:
-        print ">>> WARNING! Pitch is more than 90 deg. Results may not be accurate"
+        print(">>> WARNING! Pitch is more than 90 deg. Results may not be accurate")
         
     if euler[1] <= -pi/2:
-        print ">>> WARNING! Pitch is less than -90 deg. Results may not be accurate"
+        print(">>> WARNING! Pitch is less than -90 deg. Results may not be accurate")
                 
         
     #angles = array([r, p, y])
-    c = cos( euler/2. )
-    s = sin( euler/2. )
+    c = np.cos( euler/2. )
+    s = np.sin( euler/2. )
     
     # formulat from  Space Vehicle Dynamics and Control, Wie, pg 338
     # q1,q2,q3,q4/scalar
@@ -125,7 +125,7 @@ def quaternion_from_euler(euler):
     q3 = s[0]*c[1]*c[2] - c[0]*s[1]*s[2]
 
     #scalar first
-    return array([ q0, q1, q2, q3])
+    return np.array([ q0, q1, q2, q3])
 
 
 # before quaternion2euler_aero
@@ -135,11 +135,11 @@ def euler_from_quaternion(q):
 
     dcm = dcm_from_quaternion(q)
     
-    psi   = arctan2(dcm[0,1],dcm[0,0]) #yaw
-    theta = arcsin(-dcm[0,2])         #pitch 
-    phi   = arctan2(dcm[1,2],dcm[2,2]) #roll 
+    psi   = np.arctan2(dcm[0,1],dcm[0,0]) #yaw
+    theta = np.arcsin(-dcm[0,2])         #pitch 
+    phi   = np.arctan2(dcm[1,2],dcm[2,2]) #roll 
     
-    return array([psi,theta,phi])
+    return np.array([psi,theta,phi])
    
 
 def euler_from_quaternion_scalar_last(q):
@@ -148,11 +148,11 @@ def euler_from_quaternion_scalar_last(q):
 
     q1,q2,q3,q4 = q  
     
-    phi   = arctan2( 2*(q4*q1 + q2*q3), 1-2*(q1*q1 + q2*q2)  ) #yaw
-    theta = arcsin(  2*(q4*q2 - q3*q1) )         #pitch 
-    psi   = arctan2( 2*(q4*q3 + q1*q2), 1-2*(q2*q2 + q3*q3)) #roll 
+    phi   = np.arctan2( 2*(q4*q1 + q2*q3), 1-2*(q1*q1 + q2*q2)  ) #yaw
+    theta = np.arcsin(  2*(q4*q2 - q3*q1) )         #pitch 
+    psi   = np.arctan2( 2*(q4*q3 + q1*q2), 1-2*(q2*q2 + q3*q3)) #roll 
     
-    return array([psi,theta,phi])
+    return np.array([psi,theta,phi])
 
 #def quaternion2euler_test(q):
 #    # from http://www.gamedev.net/topic/597324-quaternion-to-euler-angles-and-back-why-is-the-rotation-changing/
@@ -169,7 +169,7 @@ def quatNorm(q):
     '''
     normalize quaternion
     '''
-    return q/sqrt(dot(q,q))
+    return q/np.sqrt(np.dot(q,q))
     
 # ------------------------------------------------------------------------------
 # DCM operations
@@ -179,16 +179,16 @@ def dcm_from_euler(euler):
     
     psi, theta, phi = euler
     
-    cpsi   = cos(psi)
-    spsi   = sin(psi)
+    cpsi   = np.cos(psi)
+    spsi   = np.sin(psi)
     
-    ctheta = cos(theta)
-    stheta = sin(theta)
+    ctheta = np.cos(theta)
+    stheta = np.sin(theta)
     
-    cphi   = cos(phi)    
-    sphi   = sin(phi)
+    cphi   = np.cos(phi)    
+    sphi   = np.sin(phi)
     
-    return array([
+    return np.array([
     [cpsi*ctheta                  , spsi*ctheta                  , -stheta     ],
     [cpsi*stheta*sphi - spsi*cphi , spsi*stheta*sphi + cpsi*cphi ,  ctheta*sphi],
     [cpsi*stheta*cphi + spsi*sphi , spsi*stheta*cphi - cpsi*sphi ,  ctheta*cphi]
@@ -212,7 +212,7 @@ def dcm_from_quaternion(q):
     # from book: Quaternions and Rotation Sequences pg 168
     q0,q1,q2,q3 = q #[0],q[1],q[2],q[3]
     
-    return array([
+    return np.array([
                 [2*q0**2-1+2*q1**2, 2*(q1*q2+q0*q3),     2*(q1*q3-q0*q2)],
                 [2*(q1*q2-q0*q3),   2*q0**2-1+2*q2**2,   2*(q2*q3+q0*q1)],
                 [2*(q1*q3+q0*q2),   2*(q2*q3-q0*q1),     2*q0**2-1+2*q3**2]
@@ -228,10 +228,10 @@ def dcm_from_quaternion(q):
 def rotX3d_passive(angle):
     # coordinate frame transformation (passive transformation/rotation) 
     # through the given angle 
-    cang = cos(angle)
-    sang = sin(angle)
+    cang = np.cos(angle)
+    sang = np.sin(angle)
     
-    return array([
+    return np.array([
     [1,   0   , 0    ],
     [0,   cang, sang ],
     [0 , -sang, cang ],
@@ -239,10 +239,10 @@ def rotX3d_passive(angle):
 def rotY3d_passive(angle):
     # coordinate frame transformation (passive transformation/rotation) 
     # through the given angle 
-    cang = cos(angle)
-    sang = sin(angle)
+    cang = np.cos(angle)
+    sang = np.sin(angle)
     
-    return array([
+    return np.array([
     [ cang , 0   , -sang],
     [ 0    , 1   , 0   ],
     [ sang , 0   , cang]
@@ -250,10 +250,10 @@ def rotY3d_passive(angle):
 def rotZ3d_passive(angle):
     # coordinate frame transformation (passive transformation/rotation) 
     # through the given angle 
-    cang = cos(angle)
-    sang = sin(angle)
+    cang = np.cos(angle)
+    sang = np.sin(angle)
     
-    return array([
+    return np.array([
     [ cang, sang, 0],
     [-sang, cang, 0],
     [ 0   , 0   , 1]
@@ -297,20 +297,26 @@ def attitude_dynamics(X, t, Torque, Inertia):
     #state vector x = (q0,q1,q2,q3, wx,wy,wz)
     q     = X[0:4]
     omega_b_i = X[4:7]
+    
+    #print(omega_b_i)
 
     #satellite kinematics
     #omega_b_o is angular velocity of body frame wrt orbital???? or inertial .. frame 
     # represented in body frame - IMU
     #omega_b_i = omega
-    dq = 0.5*dot(skew4(omega_b_i),q)
+    dq = 0.5*np.dot(skew4(omega_b_i),q)
+    
+    #print(dq)
 
     #satellite dynamics, pg 6
     # inv(skew_omega * Inertia) * omega + torque
-    domega = dot(inv(Inertia), dot( dot(-skew(omega_b_i), Inertia), omega_b_i) + Torque)
+    domega = np.dot(inv(Inertia), np.dot( np.dot(-skew(omega_b_i), Inertia), omega_b_i) + Torque)
 
+    #print(domega)
     
-    dX = concatenate((dq,domega),1)
-    #print t,dx
+    dX = np.concatenate((dq,domega),axis=None)
+    #print(dX)
+    
     # return state vector q, omega
     return dX
 
@@ -343,7 +349,7 @@ def linearSystem_(w):
     A[3,3] = 0
     '''
     
-    A = 0.5*array([ ( 0   , -w[0], -w[1], -w[2] ),
+    A = 0.5*np.array([ ( 0   , -w[0], -w[1], -w[2] ),
                     ( w[0],  0   ,  w[2], -w[1] ),
                     ( w[1], -w[2],  0   ,  w[0] ),
                     ( w[2],  w[1], -w[0],  0    )])
@@ -364,13 +370,13 @@ def linear_dynamics(omega,inertia):
     omega_z = omega[2]
     
     # attitude section
-    A_q = 0.5*array([ ( 0      ,  omega_z, -omega_y,  omega_x ),
+    A_q = 0.5*np.array([ ( 0      ,  omega_z, -omega_y,  omega_x ),
                       (-omega_z,  0      ,  omega_x,  omega_y ),
                       ( omega_y, -omega_x,  0      ,  omega_z ),
                       (-omega_x, -omega_y, -omega_z,  0       )])
     
     # append the zeros matrix for the attitude part
-    A_q = concatenate((A_q,zeros([4,3])),axis=1)
+    A_q = np.concatenate((A_q,np.zeros([4,3])),axis=1)
 
 
     # dynamics section
@@ -379,15 +385,15 @@ def linear_dynamics(omega,inertia):
     k_2 = (I_x - I_y)/I_z
     k_3 = (I_y - I_z)/I_x
     
-    A_omega = array([ ( 0          , k_3*omega_z , k_3*omega_y), 
+    A_omega = np.array([ ( 0          , k_3*omega_z , k_3*omega_y), 
                       ( k_1*omega_z, 0           , k_1*omega_x), 
                       ( k_2*omega_y, k_2*omega_x , 0          ) ]) 
 
     #print A_omega    
     # append the zeros matrix for the attitude part
-    A_omega = concatenate( (zeros([3,4]),A_omega), axis=1)
+    A_omega = np.concatenate( (np.zeros([3,4]),A_omega), axis=1)
     
-    A = concatenate ((A_q,A_omega), axis=0)
+    A = np.concatenate ((A_q,A_omega), axis=0)
     #print "#############################"
     #print A_omega
     return A
