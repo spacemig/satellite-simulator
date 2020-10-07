@@ -1,4 +1,4 @@
-# Satellite (Attitude Simulator in Python)
+# Satellite Simulator in Python (Position and Attitude) 
 A simple satellite attitude simulator in python
 
 Author: Miguel Nunes
@@ -20,12 +20,14 @@ Mac OS 10.8.3 (Mountain Lion)
 Enthought Canopy
 
 dependencies
-- numpy (comes with Enthought)
-- matplolib (comes with Enthought)
-- mayavi (install via Enthought Package Manager)
-- vtk (install via Enthought Package Manager)
-- geomag (to install see bellow)
-- sgp4 (to install see bellow)
+- numpy **
+- matplotlib **
+- mayavi (install via Package Manager)
+- vtk (install via Package Manager)
+- geomag (packaged in thirparty folder)
+- sgp4 (packaged in thirparty folder)
+
+** automatically installed on Enthought or Anaconda
 
 ## Instructions to install geomag
 
