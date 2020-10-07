@@ -3,16 +3,15 @@
 
 __author__ = "Miguel Nunes"
 __license__ = "GPL"
-__version__ = "0.0.1"
+__version__ = "0.1"
 __maintainer__ = "Miguel Nunes"
 __email__ = "spacemig@gmail.com"
 __status__ = "Production"
 
-# Python Space Simulator v 0.0.1
+# Python Space Simulator v 0.1
 
 # make sure you have the following modules installed
 # - geomag
-# for help on installing these 
 
 #%%
 import os
@@ -31,9 +30,6 @@ dirname, filename = os.path.split(os.path.abspath(__file__))
 this_folder      = os.path.dirname(os.path.abspath(__file__))+'/'
 modules_folder   = this_folder+'modules/'
 thirdparty_folder = this_folder+'thirdparty/'
-#geomag_folder    = this_folder+'thirdparty/geomag-0.9/'
-#sgp4_folder      = this_folder+'thirdparty/sgp4/'
-#pyorbital_folder = this_folder+'thirdparty/pyorbital/'
 tle_folder       = this_folder+'data/tle/'
 
 
