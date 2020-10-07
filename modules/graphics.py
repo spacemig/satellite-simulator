@@ -2,12 +2,12 @@
 
 from mayavi import mlab
 import numpy as np
-#from osl import *
-import mod_orbit_dynamics as osl
+import orbit
+import frames
 from tvtk.tools import visual
 from math import pow, degrees, radians, pi, sin, cos, sqrt
 
-vector_zero = osl.vector_zero
+vector_zero = orbit.vector_zero
 
 def drawVector(origin,vector,scale=1,color=(1,0,0)):
     mlab.quiver3d(  
@@ -124,12 +124,12 @@ def drawMagVector(lat,lon,alt):
     #alt = alt_km  #km, use km as default
 
   
-    bx_ecef, by_ecef, bz_ecef, b_total = osl.mag_EFEC(lat,lon,alt)
-    xx_ecef, yy_ecef, zz_ecef = osl.geodetic2ecef(lat,lon,alt)
+    bx_ecef, by_ecef, bz_ecef, b_total = orbit.mag_EFEC(lat,lon,alt)
+    xx_ecef, yy_ecef, zz_ecef = orbit.geodetic2ecef(lat,lon,alt)
     #print bx_ecef,by_ecef,bz_ecef
     #print xx_ecef,yy_ecef,zz_ecef
     
-    b_ecef_unit = osl.normalize(np.array([bx_ecef, by_ecef, bz_ecef]))
+    b_ecef_unit = orbit.normalize(np.array([bx_ecef, by_ecef, bz_ecef]))
 
     mlab.quiver3d(  xx_ecef, 
                 yy_ecef, 
@@ -141,7 +141,7 @@ def drawMagVector(lat,lon,alt):
                 
 def drawSatellitePosition(dateTime,tle):
     # dateTime = year, month, day, hour, minute, second
-    position, velocity = osl.state_satellite(dateTime,tle)
+    position, velocity = orbit.state_satellite(dateTime,tle)
     x = position[0]
     y = position[1]
     z = position[2]
@@ -191,7 +191,10 @@ def drawSatelliteState(satobj,position,euler):
     
     return 1
 
-def drawOrbitalFrame(sat_position,sat_velocity):
+def drawOrbitalFrame(position,velocity):
+    # Inputs:
+    # - position, satellite position
+    # - velocity, satellite velocity
     ###############################################################################
     # plot orbital frame
     #mlab.quiver3d(  position0[0], 
@@ -202,10 +205,11 @@ def drawOrbitalFrame(sat_position,sat_velocity):
     #                velocity[2], 
     #                scale_factor=500, color=(0,0,1))
     
-    position0 = sat_position
-    velocity0 = sat_velocity
+    position0 = position
+    velocity0 = velocity
     
-    body_x, body_y, body_z = osl.bodyFrame(sat_position,sat_velocity)
+    #body_x, body_y, body_z = orbit.bodyFrame(position,velocity)
+    body_x, body_y, body_z = frames.body_frame(position,velocity)
     
     # X axis
     drawVector(position0,body_x,3000,(1,0,0))
@@ -231,7 +235,7 @@ def drawOrbit(dateTime_,nk,tle):
     # Compute Orbit Points and Plot them
     position = []
     # change to just dateTime
-    position0, velocity0 = osl.state_satellite(dateTime_,tle)
+    position0, velocity0 = orbit.state_satellite(dateTime_,tle)
     
     # I have to convert back to individual values because there is a strange 
     # error when I do dateTime_[4] = dateTime_[4]+k ... this keeps incrementing
@@ -245,8 +249,8 @@ def drawOrbit(dateTime_,nk,tle):
         
         # increment the minutes
         #dateTime[4] = dateTime_[4]+k # [year, month, day, hour, minute+k, second]
-        position_, velocity_ = osl.state_satellite([year, month, day, hour, minute+k, second],tle)
-        #position_, velocity_ = osl.state_satellite(dateTime)
+        position_, velocity_ = orbit.state_satellite([year, month, day, hour, minute+k, second],tle)
+        #position_, velocity_ = orbit.state_satellite(dateTime)
         
         position.append(position_)
         

@@ -1,5 +1,0 @@
-include docs/Makefile
-recursive-include docs/source *
-include LICENSE.txt
-include MANIFEST.in
-include README

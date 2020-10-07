@@ -1,8 +1,8 @@
 #orbital dynamics support library
 
-from numpy import dot, array
-from numpy.linalg import norm
-from math import pow, degrees 
+import numpy as np
+from numpy import linalg as la
+#from math import pow, degrees 
 
 # $python setup.py install for first time
 #import geomag 
@@ -14,12 +14,12 @@ from sgp4.io import twoline2rv
 from mod_constants import vector_zero
 
 def normalize(a):
-    return a/norm(a)
+    return a/la.norm(a)
 
 def dcos(a,b):
     # compute direction cosine from vectors a and b 
     # then normalize
-    return dot(a,b)/(norm(a)*norm(b))
+    return np.dot(a,b)/(la.norm(a)*la.norm(b))
     
 
 

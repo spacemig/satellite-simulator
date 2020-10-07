@@ -14,6 +14,7 @@ __status__ = "Production"
 # - geomag
 # for help on installing these 
 
+#%%
 import os
 import sys
 # system modules
@@ -29,31 +30,25 @@ dirname, filename = os.path.split(os.path.abspath(__file__))
 # get the current script file path
 this_folder      = os.path.dirname(os.path.abspath(__file__))+'/'
 modules_folder   = this_folder+'modules/'
-geomag_folder    = this_folder+'thirdparty/geomag-0.9/'
-sgp4_folder      = this_folder+'thirdparty/sgp4/'
-pyorbital_folder = this_folder+'thirdparty/pyorbital/'
-tle_folder       = this_folder+'thirdparty/tle/'
+thirdparty_folder = this_folder+'thirdparty/'
+#geomag_folder    = this_folder+'thirdparty/geomag-0.9/'
+#sgp4_folder      = this_folder+'thirdparty/sgp4/'
+#pyorbital_folder = this_folder+'thirdparty/pyorbital/'
+tle_folder       = this_folder+'data/tle/'
+
 
 # add the folders to the system path so we don't have to install the folders
 # althought that is recommended
 if modules_folder not in sys.path:
     sys.path.append(modules_folder)
+
+if thirdparty_folder not in sys.path:
+    sys.path.append(thirdparty_folder)
     
-if geomag_folder not in sys.path:
-    sys.path.append(geomag_folder)
-
-if sgp4_folder not in sys.path:
-    sys.path.append(sgp4_folder)
-
-if pyorbital_folder not in sys.path:
-    sys.path.append(pyorbital_folder)
-
-if tle_folder not in sys.path:
-    sys.path.append(tle_folder)
-
-import mod_orbit_dynamics as osl #orbital dynamics support library
-import mod_graphics as gsl #graphics support library
-import mod_attitude as attitude
+# import modules
+import orbit #orbital dynamics support library
+import graphics #graphics support library
+import attitude as att
 
 # thirparty modules
 from pyorbital import tlefile
@@ -73,11 +68,10 @@ import matplotlib.pyplot as plt
 from pylab import ion #, plots
 from tvtk.tools import visual
 
-
-
 # $python setup.py install for first time
 #import geomag 
 
+#%%
 # -----------------------------------------------------------------------------
 # Load the ISS TLE
 #tle = tlefile.read('ISS (ZARYA)') # reads TLE from the celestrack website
@@ -86,12 +80,12 @@ tle = tlefile.read('ISS (ZARYA)',tle_folder+'stations.txt')
 
 orb = Orbital("ISS (ZARYA)",tle_folder+'stations.txt')
 #now = datetime.utcnow() # for real time
-now = datetime(2013,05,31,22,0,0)
+now = datetime(2013,5,31,22,0,0)
 pos0 = orb.get_position(now,normalize=False)
 lon,lat,alt = orb.get_lonlatalt(now)
-print "\nSatellite Lat Lon Alt: ",lat,lon,alt,"\n"
-print "\nSatellite Position (normalized):", pos0[0], "\n"
-vector_zero = osl.vector_zero
+print("\nSatellite Lat Lon Alt: ",lat,lon,alt,"\n")
+print("\nSatellite Position (normalized):", pos0[0], "\n")
+vector_zero = orbit.vector_zero
 
 ###############################################################################
 r_earth = 6371.0 # km 
@@ -119,6 +113,7 @@ dateTime = [year, month, day, hour, minute, second]
 mean_motion = 16.10627010
 orbit_period = (60*60*24)/mean_motion
 
+#%%
 ###############################################################################
 # MayaVi figure
 
@@ -140,10 +135,10 @@ for k in range(n_actors):
 # Tell visual to use this as the viewer.
 visual.set_viewer(figMaya)
 
-gsl.drawContinentsSphere(r_earth)
-gsl.drawGlobe(r_earth)
-gsl.drawEquator(r_earth)
-gsl.drawReferenceFrameEarth(r_earth)
+graphics.drawContinentsSphere(r_earth)
+graphics.drawGlobe(r_earth)
+graphics.drawEquator(r_earth)
+graphics.drawReferenceFrameEarth(r_earth)
 
 
 #lat_deg = 80.0 #
@@ -154,15 +149,15 @@ gsl.drawReferenceFrameEarth(r_earth)
 
 # plot a range of magnetic vectors
 #for k in range(-90,90,10):
-#    gsl.drawMagVector(k,0,500)
+#    graphics.drawMagVector(k,0,500)
 
-#gsl.drawSatellitePosition(dateTime,tle)
+#graphics.drawSatellitePosition(dateTime,tle)
 #b1 = visual.box()
 #b1.size = (1000,1000,1000)
 
-position_sat, velocity_sat = osl.state_satellite(dateTime,tle)
+position_sat, velocity_sat = orbit.state_satellite(dateTime,tle)
 
-print "\nSatellite Position: ", position_sat, "\n"
+print("\nSatellite Position: ", position_sat, "\n")
 #position_sat = [-6479.7,-1762,976]
 #c1 = visual.cylinder()
 #c1.length = 300
@@ -178,16 +173,16 @@ print "\nSatellite Position: ", position_sat, "\n"
 #c2.y = 0
 #c2.z = 0
 
-#sat = gsl.drawSatellite(position_sat,[0,0,0])
+#sat = graphics.drawSatellite(position_sat,[0,0,0])
 
-orbit,orbit_position = gsl.drawOrbit(dateTime,15,tle)
+orbit,orbit_position = graphics.drawOrbit(dateTime,30,tle)
 pos = array([position_sat[0],position_sat[1],position_sat[2]])
-#fr = gsl.drawReferenceFrame(pos,2000)
-ofr = gsl.drawOrbitalFrame(position_sat,velocity_sat)
+#fr = graphics.drawReferenceFrame(pos,2000)
+ofr = graphics.drawOrbitalFrame(position_sat,velocity_sat)
 
 # testing rotations
 a = array([7000,0,0])
-#gsl.drawVector(vector_zero,a)
+#graphics.drawVector(vector_zero,a)
 
 # yaw-psi, pitch-theta, roll-phi
 yaw,pitch,roll = radians(45),radians(90),radians(0)
@@ -201,9 +196,9 @@ Rx = visual._create_rotation_matrix([1,0,0],degrees(phi))
 Ry = visual._create_rotation_matrix([0,1,0],degrees(theta))
 Rz = visual._create_rotation_matrix([0,0,1],degrees(psi))
 
-Rx = attitude.rotX3d_passive(phi)
-Ry = attitude.rotY3d_passive(theta)
-Rz = attitude.rotZ3d_passive(psi)
+Rx = att.rotX3d_passive(phi)
+Ry = att.rotY3d_passive(theta)
+Rz = att.rotZ3d_passive(psi)
 # aerospace standard
 # first rotate around z, then y, then x
 # Rx*Ry*Rz
@@ -211,34 +206,34 @@ Rtotal = dot(Rz,dot(Ry,Rx))
 
 #b1 = dot(Rx,dot(Ry,dot(Rz,a)))
 b = dot(Rtotal.T,a)
-gsl.drawVector(vector_zero,b)
-#gsl.drawVector(vector_zero,b2)
+graphics.drawVector(vector_zero,b)
+#graphics.drawVector(vector_zero,b2)
 
 
-#q1 = attitude.euler2quaternion(radians(r),radians(p),radians(y))
-#euler = attitude.quaternion2euler(q1)*180/pi
+#q1 = att.euler2quaternion(radians(r),radians(p),radians(y))
+#euler = att.quaternion2euler(q1)*180/pi
 
 #print euler
 #print q1
 
-#DCM = attitude.quaternion2dcm(q1)
+#DCM = att.quaternion2dcm(q1)
 #print DCM
 #print Rtotal
 
 # this works
-#q1 = attitude.euler2quaternion_test(array([radians(r),radians(p),radians(y)]))
-#euler1 = attitude.quaternion2euler_test(array(q1))*180/pi
+#q1 = att.euler2quaternion_test(array([radians(r),radians(p),radians(y)]))
+#euler1 = att.quaternion2euler_test(array(q1))*180/pi
 euler = array([psi,theta,phi]) # use, 
-q1 = attitude.quaternion_from_euler(euler)
-euler1 = attitude.euler_from_quaternion(array(q1))*180/pi
+q1 = att.quaternion_from_euler(euler)
+euler1 = att.euler_from_quaternion(array(q1))*180/pi
 
-print q1
-print euler1
+print(q1)
+print(euler1)
 
-DCM = attitude.dcm_from_quaternion(q1)
-print Rtotal,"\n"
-print DCM,"\n"
-print attitude.dcm_from_euler(euler),"\n"
+DCM = att.dcm_from_quaternion(q1)
+print(Rtotal,"\n")
+print(DCM,"\n")
+print(att.dcm_from_euler(euler),"\n")
 a  = array([1,0,0])
 a_ = dot(DCM,a)
 
@@ -258,7 +253,7 @@ yaw   = 0*pi/180 # yaw in deg
 
 #q_0 = tr.quaternion_from_euler(roll,pitch,yaw)
 euler_0 = array([roll,pitch,yaw])
-q_0 = attitude.quaternion_from_euler(euler_0)
+q_0 = att.quaternion_from_euler(euler_0)
 #q_0 = array([0,0,0,1])
 omega_x0 = 2*pi/180
 omega_y0 = 1*pi/180
@@ -292,7 +287,7 @@ Inertia = array( [(I_x   , 0     , 0     ),
 # SIM
 #########################################
 
-x_sim = integrate.odeint(attitude.attitude_dynamics, x_0, time_data, args=(torque_0,Inertia))
+x_sim = integrate.odeint(att.attitude_dynamics, x_0, time_data, args=(torque_0,Inertia))
 
 ## check the quaternion module
 ##q_mod = sqrt(x_sim[:,3]**2+x_sim[:,4]**2+x_sim[:,5]**2+x_sim[:,6]**2)
@@ -305,7 +300,7 @@ x_sim = integrate.odeint(attitude.attitude_dynamics, x_0, time_data, args=(torqu
 ## convert all quaternions to euler angles
 #rpy = np.zeros((q_sim.shape[0],3))
 #for i in range(0,q_sim.shape[0]):
-#    rpy[i,:] = attitude.quaternion2euler_test(q_sim[i,:])
+#    rpy[i,:] = att.quaternion2euler_test(q_sim[i,:])
 
 ##########################################
 ## INIT FIGURE
@@ -374,22 +369,22 @@ x_sim = integrate.odeint(attitude.attitude_dynamics, x_0, time_data, args=(torqu
 # plot magnetic vector in satellite position
 #
 
-lat, lon = osl.ecef2geodetic(position0[0],position0[1],position0[2])
+lat, lon = orbit.ecef2geodetic(position0[0],position0[1],position0[2])
 alt = float(norm(np.array(position0)) - r_earth)
 #print alt
-gsl.drawMagVector(lat,lon,alt)
-#gsl.drawOrbitalFrame(position0,velocity0)
+graphics.drawMagVector(lat,lon,alt)
+#graphics.drawOrbitalFrame(position0,velocity0)
 
 ##############################################################################
 # testing draw mag vector 
 #lat,lon,alt = 0,0,0
-#bx_ecef, by_ecef, bz_ecef, b_total = osl.mag_EFEC(lat,lon,alt)
-#xx_ecef, yy_ecef, zz_ecef = osl.geodetic2ecef(lat,lon,alt)
+#bx_ecef, by_ecef, bz_ecef, b_total = orbit.mag_EFEC(lat,lon,alt)
+#xx_ecef, yy_ecef, zz_ecef = orbit.geodetic2ecef(lat,lon,alt)
 #mlab.quiver3d( 7000,0,0, 1,0,0, scale_factor=7000, color=(0,1,1))
 #mlab.quiver3d( 7000,0,0, 1,1,0, scale_factor=7000, color=(0,1,1))
 
 #print lat,lon,alt
-#bx_ecef_unit = osl.normalize(array([bx_ecef, by_ecef, bz_ecef]))
+#bx_ecef_unit = orbit.normalize(array([bx_ecef, by_ecef, bz_ecef]))
 
 #print(bx_ecef_unit)
 
@@ -406,13 +401,13 @@ gsl.drawMagVector(lat,lon,alt)
 
 # compute the angle between the body x vector and the magnetic vector
 # this will help to determine the position of the torque rods
-#body_x = osl.normalize(np.array(velocity0))
-body_x, body_y, body_z = osl.bodyFrame(position0,velocity0)
+#body_x = orbit.normalize(np.array(velocity0))
+body_x, body_y, body_z = orbit.bodyFrame(position0,velocity0)
 
 
 
 #body_x = np.array(body_x)
-bx_ecef, by_ecef, bz_ecef, b_total = osl.mag_EFEC(lat,lon,alt)
+bx_ecef, by_ecef, bz_ecef, b_total = orbit.mag_EFEC(lat,lon,alt)
 #print bx_ecef,by_ecef,bz_ecef
 mag_ = np.array([bx_ecef, by_ecef, bz_ecef])
 
@@ -432,7 +427,7 @@ Z = [0,0,1]
 #body_y = [-1,1,0]
 #body_z = [0,0,1]
 
-dcos = osl.dcos
+dcos = orbit.dcos
 def dcm(ax,ay,az, bx,by,bz):
     return np.array([[ dcos(bx,ax), dcos(bx,ay), dcos(bx,az)],
                     [  dcos(by,ax), dcos(by,ay), dcos(by,az)],
@@ -450,21 +445,21 @@ DCM = dcm(X,Y,Z, body_x,body_y,body_z)
 # what I want is the BF coordintates of some vector in the EFEC 
 # this computes the BF coordinates of the X vector resident in the EFEC
 #newXX = dot(DCM,X)
-#gsl.drawVector(vector_zero,array(X),1,(1,1,0))
-#gsl.drawVector(array(position0),newX,1,(1,1,0))   
+#graphics.drawVector(vector_zero,array(X),1,(1,1,0))
+#graphics.drawVector(array(position0),newX,1,(1,1,0))   
 #print newX 
 #print newXX
 
 #convert the Magnetic Vector in the EFEC to the BF
 #newMag = dot(DCM,mag_)
-#gsl.drawVector(array(position0),newMag,1000,(1,1,0))   
+#graphics.drawVector(array(position0),newMag,1000,(1,1,0))   
 #print newMag
 
 ###############################################################################
 ## Plot the deviation of the magnetic vector with the body x axis (velocity vector)
 position_data = []
 torque_data = []
-#position0, velocity0 = osl.state_satellite(year, month, day, hour, minute, second)
+#position0, velocity0 = orbit.state_satellite(year, month, day, hour, minute, second)
 
 time_data = range(0,10,2)
 
@@ -475,15 +470,15 @@ magnetic_moment_max = 25 #A.m^2
 for k in time_data:
     # step for each minute
     # collect all positions for satellite
-    position_, velocity_ = osl.state_satellite(year, month, day, hour, minute+k, second)
+    position_, velocity_ = orbit.state_satellite(year, month, day, hour, minute+k, second)
     
     position_data.append(position_)
     
-    lat, lon = osl.ecef2geodetic(position_[0],position_[1],position_[2])
+    lat, lon = orbit.ecef2geodetic(position_[0],position_[1],position_[2])
     alt = float(norm(np.array(position_)) - r_earth)
-    bx_ecef, by_ecef, bz_ecef, b_total = osl.mag_EFEC(lat,lon,alt)
+    bx_ecef, by_ecef, bz_ecef, b_total = orbit.mag_EFEC(lat,lon,alt)
     mag_ = np.array([bx_ecef, by_ecef, bz_ecef])
-    body_x, body_y, body_z = osl.bodyFrame(position_,velocity_)
+    body_x, body_y, body_z = orbit.bodyFrame(position_,velocity_)
     
     DCM = dcm(X,Y,Z, body_x,body_y,body_z)
     
@@ -511,8 +506,8 @@ for k in time_data:
     
     torque_data.append([tx_max,ty_max])
     
-    gsl.drawMagVector(lat,lon,alt)
-    #gsl.drawOrbitalFrame(position_,velocity_)
+    graphics.drawMagVector(lat,lon,alt)
+    #graphics.drawOrbitalFrame(position_,velocity_)
     
     # REVISIT THE PREVIOUS CODE... really need position0 inside the loop?
     
@@ -555,7 +550,7 @@ def satellite_state(kk):
     #print(time_data[kk])
     #orbit_position
     q = x_sim[kk,3:7]
-    euler = attitude.euler_from_quaternion(q)
+    euler = att.euler_from_quaternion(q)
     
     return orbit_position[kk,0], orbit_position[kk,1], orbit_position[kk,2],euler[0],euler[1],euler[2]
 
@@ -572,8 +567,8 @@ def satellite_state(kk):
 #        x, y, z, phi,theta,psi = satellite_state()
 #        print x, y, z, degrees(phi),degrees(theta),degrees(psi)
 #        #sat.x, sat.y, sat.z, phi,theta,psi = satellite_state()
-#        #sat = gsl.drawSatellite([x,y,z],[phi,theta,psi])
-#        gsl.drawSatelliteState(sat,[x,y,z],[phi,theta,psi])
+#        #sat = graphics.drawSatellite([x,y,z],[phi,theta,psi])
+#        graphics.drawSatelliteState(sat,[x,y,z],[phi,theta,psi])
 #        
 #        fgcf.scene.render()
 #        
@@ -585,13 +580,13 @@ def satellite_state(kk):
 # 
 for k in range(number_iterations):
     
-    print k
+    print(k)
     x, y, z, phi,theta,psi = satellite_state(k)
-    sat = gsl.drawSatellite([x,y,z],[phi,theta,psi])
+    sat = graphics.drawSatellite([x,y,z],[phi,theta,psi])
 
 ###############################################################################
 # ELAPSED TIME
 ############################################################################### 
 toc = time()
 
-print "Elapsed time: {:.3f} s".format(toc-tic)
+print("Elapsed time: {:.3f} s".format(toc-tic))
