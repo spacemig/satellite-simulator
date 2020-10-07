@@ -1,4 +1,4 @@
-# Satellite (Attitude Simulator in Python)
+# Satellite Simulator in Python (Position and Attitude) 
 A simple satellite attitude simulator in python
 
 Author: Miguel Nunes
